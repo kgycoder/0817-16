@@ -4342,6 +4342,53 @@ button, a, div, span, input {
     --nav-h: 74px; /* 캡슐 높이(60px) + 바닥 여백(14px) 반영 */
 }
 
+/* ── Liquid Glass 엔진 보조 레이어 (liquid-glass.js 가 생성) ──
+   .lg-rim : Kyant Highlight (가장자리 빛 / 균일 림)
+   .lg-inner : Kyant InnerShadow (썸을 누를 때)
+   .lg-tint : 선택 썸 아래 강조색 라벨 복사본 — 썸 영역만 clip-path 로 노출 */
+.lg-rim,
+.lg-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.lg-rim {
+    background-size: 100% 100%;
+    mix-blend-mode: plus-lighter;
+}
+
+.lg-tint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: stretch;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.lg-tint,
+.lg-tint * {
+    color: var(--acc) !important;
+    stroke: var(--acc);
+}
+
+.lg-tint .mn-btn {
+    z-index: auto;
+}
+
+.lg-hl {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    mix-blend-mode: plus-lighter;
+}
+
 /* ── 검색 캡슐 → Liquid Glass ── */
 .mob-srch-wrap {
     position: relative;
@@ -4358,7 +4405,9 @@ button, a, div, span, input {
         inset 0 1px 0 rgba(255,255,255,.18),
         inset 0 -1px 0 rgba(255,255,255,.05),
         0 12px 34px rgba(0,0,0,.30);
-    backdrop-filter: url(#liquidGlassSearchFilter);
+    /* 굴절은 liquid-glass.js 가 요소별 SVG 변위 필터를 만들어 inline 으로 연결한다.
+       여기 값은 해당 기능을 지원하지 않는 WebView 의 반투명 유리 폴백 */
+    backdrop-filter: blur(12px) saturate(1.4);
     -webkit-backdrop-filter: blur(12px) saturate(1.4);
 }
 
@@ -4438,14 +4487,14 @@ button, a, div, span, input {
     display: flex;
     align-items: stretch;
     isolation: isolate;
-    overflow: hidden;
+    overflow: visible; /* 선택 썸의 press 스케일이 캡슐 밖으로 살짝 나올 수 있게 */
     background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
     border: 1px solid rgba(255,255,255,.14);
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,.16),
         inset 0 -1px 0 rgba(255,255,255,.04),
         0 15px 45px rgba(0,0,0,.35);
-    backdrop-filter: url(#liquidGlassNavFilter);
+    backdrop-filter: blur(14px) saturate(1.4);
     -webkit-backdrop-filter: blur(14px) saturate(1.4);
 }
 
@@ -4462,26 +4511,28 @@ button, a, div, span, input {
 
 .mn-btn {
     position: relative;
-    z-index: 2;
+    z-index: 1;
 }
 
 .mn-pill {
     position: absolute;
     top: 3px;
-    left: 3px;
+    left: 0;
     height: calc(100% - 6px);
     width: 60px;
     border-radius: 999px;
-    z-index: 1;
+    z-index: 3;
+    transform-origin: center;
+    will-change: transform;
     pointer-events: none;
     isolation: isolate;
     background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
     border: 1px solid rgba(255,255,255,.22);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(255,255,255,.06), 0 4px 14px rgba(0,0,0,.32);
-    /* 강한 Edge 굴절: 전용 SVG 필터로 캡슐 가장자리를 렌즈처럼 왜곡시킨다 (범위/강도 확대) */
-    backdrop-filter: url(#liquidGlassPillFilter);
+    /* 렌즈 굴절은 liquid-glass.js 가 연결 (위치/크기/스트레치는 스프링으로 JS 가 구동) */
+    backdrop-filter: blur(5px) saturate(1.5);
     -webkit-backdrop-filter: blur(5px) saturate(1.5);
-    transition: left .46s cubic-bezier(.22,1.61,.36,1), width .46s cubic-bezier(.22,1.61,.36,1);
+    transition: none;
 }
 
     .mn-pill:before {
@@ -4505,7 +4556,7 @@ button, a, div, span, input {
     border-radius: 32px;
     isolation: isolate;
     background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)) !important;
-    backdrop-filter: url(#liquidGlassBarFilter) !important;
+    backdrop-filter: blur(14px) saturate(1.4) !important;
     -webkit-backdrop-filter: blur(14px) saturate(1.4) !important;
     border: 1px solid rgba(255,255,255,.14);
     box-shadow:
@@ -4558,7 +4609,7 @@ button, a, div, span, input {
         inset 0 1px 0 rgba(255,255,255,.26),
         inset 0 -1px 0 rgba(255,255,255,.07),
         0 14px 34px rgba(0,0,0,.40);
-    backdrop-filter: url(#liquidGlassCtxFilter);
+    backdrop-filter: blur(34px) saturate(2.1);
     -webkit-backdrop-filter: blur(34px) saturate(2.1);
 }
 
@@ -4606,12 +4657,12 @@ button, a, div, span, input {
         inset 0 1px 0 rgba(255,255,255,.26),
         inset 0 -1px 0 rgba(255,255,255,.07),
         0 20px 50px rgba(0,0,0,.42);
-    backdrop-filter: url(#liquidGlassDialogFilter);
+    backdrop-filter: blur(40px) saturate(2.1);
     -webkit-backdrop-filter: blur(40px) saturate(2.1);
 }
 
     #pl-confirm {
-        backdrop-filter: url(#liquidGlassConfirmFilter);
+        backdrop-filter: blur(40px) saturate(2.1);
     }
 
     #pl-dialog::before,
@@ -4638,7 +4689,7 @@ button, a, div, span, input {
         inset 0 1px 0 rgba(255,255,255,.24),
         inset 0 -1px 0 rgba(255,255,255,.06),
         0 22px 54px rgba(0,0,0,.44);
-    backdrop-filter: url(#liquidGlassAddModalFilter);
+    backdrop-filter: blur(42px) saturate(2.1);
     -webkit-backdrop-filter: blur(42px) saturate(2.1);
 }
 
